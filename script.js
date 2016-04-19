@@ -77,17 +77,31 @@
     return result;
   };
 
+  var timelineRef, userRef;
+  var timelineHandler, userHandler;
+
+  var stopListening = function() {
+    if (typeof timelineRef === 'object' && typeof timelineHandler) {
+      timelineRef.off('value', timelineHandler);
+    }
+    if (typeof userRef === 'object' && typeof userHandler) {
+      userRef.off('value', userHandler);
+    }
+  };
+
   var handleUserChange = function (e) {
     var userKey = $(e.target).val();
 
+    stopListening();
+
     if (userKey) {
-      var timelineRef = userObjectsRef.child('timeline').child(userKey);
-      timelineRef.on('value', function(snap) {
+      timelineRef = userObjectsRef.child('timeline').child(userKey);
+      timelineHandler = timelineRef.on('value', function(snap) {
         setTimeline(flatten(snap.val()).reverse(), userKey);
       });
 
-      var userRef = usersRef.child(userKey);
-      userRef.on('value', function(snap) {
+      userRef = usersRef.child(userKey);
+      userHandler = userRef.on('value', function(snap) {
         setTweetBox(snap.val());
       });
       userObjectsRef.child('following').child(userKey).once('value', function(snap) {
