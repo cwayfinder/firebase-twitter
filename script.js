@@ -63,10 +63,29 @@
     setUsers(snap.val);
   });
 
+  var flatten = function(tweets) {
+    var keys = Object.keys(tweets),
+      i = keys.length,
+      result = [],
+      tweet;
+    while(i--) {
+      tweet = tweets[key[i]];
+      tweet.key = keys[i];
+      result.unshift(tweet);
+    }
+
+    return result;
+  };
+
   var handleUserChange = function (e) {
     var userKey = $(e.target).val();
 
     if (userKey) {
+      var timelineRef = userObjectsRef.child('timeline').child(userKey);
+      timelineRef.on('value', function(snap) {
+        setTimeline(flatten(snap.val()).reverse(), userKey);
+      });
+
       var userRef = usersRef.child(userKey);
       userRef.on('value', function(snap) {
         setTweetBox(snap.val());
