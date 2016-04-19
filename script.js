@@ -89,6 +89,8 @@
     }
   };
 
+  var tweetBoxClickHandler;
+
   var handleUserChange = function (e) {
     var userKey = $(e.target).val();
 
@@ -107,6 +109,43 @@
       userObjectsRef.child('following').child(userKey).once('value', function(snap) {
         setFollowing(snap.val());
       });
+
+      var userTweetBox = $('#user-tweet-box');
+
+      // Prevent duplicate registration
+      if(typeof tweetBoxClickHandler === 'function') {
+        userTweetBox.off('click', 'button', tweetBoxClickHandler);
+      }
+      tweetBoxClickHandler = function(e) {
+        e.preventDefault();
+
+        var tweet = {
+          text: userTweetBox.find('textarea').val(),
+          created: Firebase.ServerValue.TIMESTAMP
+        };
+
+        userObjectsRef.child('tweets').child(userKey).push(tweet, function(err) {
+          if (err) {
+            console.warn('Error!', err);
+          } else {
+            userRef.once('value', function(snap) {
+              var user = snap.val();
+              userObjectsRef.child('timeline').child(userKey).push({
+                created: tweet.created,
+                text: tweet.text,
+                userKey: userKey,
+                user: {
+                  email: user.email,
+                  key: userKey,
+                  name: user.name,
+                  username: user.username
+                }
+              });
+            });
+          }
+        });
+      };
+      userTweetBox.on('click', 'button', tweetBoxClickHandler);
     } else {
       setTweetBox({});
       setTimeline({});
