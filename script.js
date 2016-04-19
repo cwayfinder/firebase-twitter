@@ -55,7 +55,7 @@
   var firebaseRoot = 'https://flickering-fire-5027.firebaseio.com/twitterClone/';
   var usersRef = new Firebase(firebaseRoot + 'users');
 
-  usersRef.on('value', function (snap) {
+  usersRef.once('value', function (snap) {
     setUsers(snap.val);
   });
 
