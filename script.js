@@ -27,6 +27,16 @@
     setFollowing = function (following) {
       console.info('called setFollowing with this following:', following);
 
+      var followedUsers = [];
+      following.forEach(function(userId) {
+        usersRef.child(userId).once('value', function(snap) {
+          followedUsers.push(snap.val());
+
+          $('#user-following').html(_.template($('#user-following-template').html())({
+            following: followedUsers
+          }))
+        })
+      });
     },
     setTweetBox = function (user) {
       console.info('called setTweetBox with this user:', user);
@@ -66,7 +76,10 @@
       var userRef = usersRef.child(userKey);
       userRef.on('value', function(snap) {
         setTweetBox(snap.val());
-      })
+      });
+      userRef.child('following').once('value', function(snap) {
+        setFollowing(snap.val());
+      });
     } else {
       setTweetBox({});
       setTimeline({});
