@@ -155,7 +155,7 @@
               email: user.email,
               key: snap.key(),
               name: user.name,
-              username: user.username
+              username: user.username 
             };
 
             userObjectsRef.child('followers').child(userKey).child('list')
