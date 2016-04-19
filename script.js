@@ -52,12 +52,21 @@
       });
     };
 
+  var firebaseRoot = 'https://flickering-fire-5027.firebaseio.com/twitterClone/';
+  var usersRef = new Firebase(firebaseRoot + 'users');
+
+  usersRef.on('value', function (snap) {
+    setUsers(snap.val);
+  });
+
   var handleUserChange = function (e) {
     var userKey = $(e.target).val();
 
     if (userKey) {
-
-
+      var userRef = usersRef.child(userKey);
+      userRef.on('value', function(snap) {
+        setTweetBox(snap.val());
+      })
     } else {
       setTweetBox({});
       setTimeline({});
